@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.Constants;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
 using Entities.DTOs;
@@ -17,29 +19,19 @@ namespace Business.Concrete
             _carDal = carDal;
         }
 
-        public void Add(Car car)
+        public IResult Add(Car car)
         {
-            if (car.Description.Length >= 2)
+            if (CheckDescription(car) || CheckDailyPrice(car))
             {
-                if (car.DailyPrice > 0)
-                {
-                    _carDal.Add(car);
-                    Console.WriteLine("{0} Açıklamalı aracınız, {1} lira fiyatı ile eklenmiştir", car.Description, car.DailyPrice);
-                }
-                else
-                {
-                    Console.WriteLine("HATA! Aracın günlük fiyatı 0'dan büyük olmalı");
-                }
+                return new ErrorResult(Messages.CarNameInvalid);
             }
-            else
-            {
-                Console.WriteLine("HATA! Araç açıklaması minimum 2 karakter olmalıdır!");
-            }
+            _carDal.Add(car);
+            return new SuccessResult(Messages.CarAdded);
         }
 
-        public List<Car> GetAll()
+        public IDataResult<List<Car>> GetAll()
         {
-            return _carDal.GetAll();
+            return new DataResult<List<Car>>(_carDal.GetAll(),true,"Ürünler listelendi");
         }
 
         public List<CarDetailDto> GetCarDetails()
@@ -55,6 +47,45 @@ namespace Business.Concrete
         public List<Car> GetCarsByColorId(int id)
         {
             return _carDal.GetAll(p => p.ColorId == id);
+        }
+        public bool CheckDescription(Car car)
+        {
+            return car.Description.Length < 2;
+        }
+
+        public bool CheckDailyPrice(Car car)
+        {
+            return car.DailyPrice <= 0;
+        }
+
+        IDataResult<List<Car>> ICarService.GetCarsByBrandId(int brandId)
+        {
+            throw new NotImplementedException();
+        }
+
+        IDataResult<List<Car>> ICarService.GetCarsByColorId(int colorId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDataResult<Car> GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        IDataResult<List<CarDetailDto>> ICarService.GetCarDetails()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IResult Update(Car car)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IResult Delete(Car car)
+        {
+            throw new NotImplementedException();
         }
     }
 }
